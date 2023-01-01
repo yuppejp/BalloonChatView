@@ -21,7 +21,9 @@ class ChatMessage: ObservableObject {
     @Published var items: [ChatMessageItem] = []
     
     func send(item: ChatMessageItem) {
-        items.append(item)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.items.append(item)
+        }
     }
 }
 
@@ -31,38 +33,22 @@ struct BalloonChatView: View {
     let you: User
     @ObservedObject var message: ChatMessage
     @State private var inputText = ""
-    @State private var scrollViewContentSize: CGSize = .zero
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollViewReader { reader in
                 VStack {
-                    //List { // https://developer.apple.com/forums/thread/712510
                     ScrollView {
                         VStack {
                             ForEach(message.items) { item in
                                 MessageItemView(me: me, message: item)
                                     .id(item.id)
                                     .font(.footnote)
-                                    //.background(.bar)
                             }
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                         }
-                        .background(
-                            // ScrollView shrink to fit
-                            // https://developer.apple.com/forums/thread/671690
-                            GeometryReader { geometry -> Color in
-                                DispatchQueue.main.async {
-                                    scrollViewContentSize = geometry.size
-                                }
-                                return Color.clear
-                            }
-                        )
-
                     }
-                    .frame(maxHeight: scrollViewContentSize.height)
-                    //.background(.bar)
                     .listStyle(PlainListStyle())
                 }
                 .padding(4)
@@ -99,7 +85,6 @@ struct BalloonChatView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(4)
             }
-            //.background(.background)
         }
         .background(.background.opacity(0.5))
     }
@@ -174,25 +159,18 @@ struct MyMessageItemView: View {
     }
 }
 
-//extension Date {
-//    func formatTime() -> String {
-//        let f = DateFormatter()
-//        f.timeStyle = .short
-//        f.dateStyle = .none
-//        f.locale = Locale(identifier: "ja_JP")
-//        let time = f.string(from: self)
-//        return time
-//    }
-//}
-
 extension UIApplication {
     func closeKeyboard() {
         sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
-struct BalloonChatView_Previews: PreviewProvider {
-    static var previews: some View {
+struct SampleView: View {
+    let message = ChatMessage()
+    let user1 = User(userName: "user1")
+    let user2 = User(userName: "user2")
+
+    var body: some View {
         let message = ChatMessage()
         let user1 = User(userName: "user1")
         let user2 = User(userName: "user2")
@@ -207,7 +185,7 @@ struct BalloonChatView_Previews: PreviewProvider {
             Text("You")
             BalloonChatView(me: user2, you: user1, message: message)
                 .background(Color.gray)
-            
+
             Spacer()
             
             HStack {
@@ -233,14 +211,19 @@ struct BalloonChatView_Previews: PreviewProvider {
         }
         .padding()
     }
-    
-    
-    static func generator(_ length: Int) -> String {
+
+    func generator(_ length: Int) -> String {
         let letters = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz0123456789"
         var randomString = ""
         for _ in 0 ..< length {
             randomString += String(letters.randomElement()!)
         }
         return randomString
+    }
+}
+
+struct BalloonChatView_Previews: PreviewProvider {
+    static var previews: some View {
+        SampleView()
     }
 }
