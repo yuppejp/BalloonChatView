@@ -25,8 +25,8 @@ struct BalloonText: View {
         Text(text)
             .padding(.leading, 8 + (mirrored ? cornerRadius * 0.6 : 0))
             .padding(.trailing, 8 + (!mirrored ? cornerRadius * 0.6 : 0))
-            .padding(.vertical, 4 / 2)
-            .foregroundColor(.white)
+            .padding(.vertical, 8 / 2)
+            //.foregroundColor(.white)
             .background(BalloonShape(
                 cornerRadius: cornerRadius,
                 color: color,
@@ -120,8 +120,10 @@ struct BalloonText_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             BalloonText("message1", color: .green)
+                .foregroundColor(.white)
                 .font(.footnote)
             BalloonText("message2", color: .black.opacity(0.5), mirrored: true)
+                .foregroundColor(.white)
                 .font(.footnote)
         }
     }
