@@ -13,6 +13,8 @@
 		56A5A114295FB16600396EE8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 56A5A113295FB16600396EE8 /* Preview Assets.xcassets */; };
 		56A5A11B295FB32D00396EE8 /* BalloonText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A5A11A295FB32D00396EE8 /* BalloonText.swift */; };
 		56A5A11D295FB47600396EE8 /* BalloonChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A5A11C295FB47600396EE8 /* BalloonChatView.swift */; };
+		56E236CD2964127F0096F702 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E236CC2964127F0096F702 /* User.swift */; };
+		56E236CF296412B60096F702 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E236CE296412B60096F702 /* ChatMessage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +25,8 @@
 		56A5A113295FB16600396EE8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		56A5A11A295FB32D00396EE8 /* BalloonText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonText.swift; sourceTree = "<group>"; };
 		56A5A11C295FB47600396EE8 /* BalloonChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalloonChatView.swift; sourceTree = "<group>"; };
+		56E236CC2964127F0096F702 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		56E236CE296412B60096F702 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,12 +59,12 @@
 		56A5A10B295FB16500396EE8 /* BalloonChatView */ = {
 			isa = PBXGroup;
 			children = (
-				56A5A11C295FB47600396EE8 /* BalloonChatView.swift */,
 				56A5A10C295FB16500396EE8 /* BalloonChatViewApp.swift */,
-				56A5A11A295FB32D00396EE8 /* BalloonText.swift */,
 				56A5A10E295FB16500396EE8 /* ContentView.swift */,
 				56A5A110295FB16600396EE8 /* Assets.xcassets */,
+				56E236D3296419EE0096F702 /* Model */,
 				56A5A112295FB16600396EE8 /* Preview Content */,
+				56E236D22964192F0096F702 /* View */,
 			);
 			path = BalloonChatView;
 			sourceTree = "<group>";
@@ -71,6 +75,24 @@
 				56A5A113295FB16600396EE8 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		56E236D22964192F0096F702 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				56A5A11C295FB47600396EE8 /* BalloonChatView.swift */,
+				56A5A11A295FB32D00396EE8 /* BalloonText.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		56E236D3296419EE0096F702 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				56E236CE296412B60096F702 /* ChatMessage.swift */,
+				56E236CC2964127F0096F702 /* User.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -146,6 +168,8 @@
 				56A5A10F295FB16500396EE8 /* ContentView.swift in Sources */,
 				56A5A10D295FB16500396EE8 /* BalloonChatViewApp.swift in Sources */,
 				56A5A11D295FB47600396EE8 /* BalloonChatView.swift in Sources */,
+				56E236CF296412B60096F702 /* ChatMessage.swift in Sources */,
+				56E236CD2964127F0096F702 /* User.swift in Sources */,
 				56A5A11B295FB32D00396EE8 /* BalloonText.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

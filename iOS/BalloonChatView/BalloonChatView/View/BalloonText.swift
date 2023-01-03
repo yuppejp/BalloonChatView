@@ -20,7 +20,7 @@ struct BalloonText: View {
     }
 
     var body: some View {
-        let cornerRadius = 8.0
+        let cornerRadius = 10.0
         
         Text(text)
             .padding(.leading, 8 + (mirrored ? cornerRadius * 0.6 : 0))
@@ -120,11 +120,7 @@ struct BalloonText_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             BalloonText("message1", color: .green)
-                .foregroundColor(.white)
-                .font(.footnote)
-            BalloonText("message2", color: .black.opacity(0.5), mirrored: true)
-                .foregroundColor(.white)
-                .font(.footnote)
+            BalloonText("message2", color: .primary.opacity(0.3), mirrored: true)
         }
     }
 }
