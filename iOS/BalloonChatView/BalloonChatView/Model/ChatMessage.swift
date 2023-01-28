@@ -2,6 +2,8 @@
 //  ChatMessage.swift
 //  BalloonChatView
 //
+//  Created by yuppe on 2023/01/11.
+//
 
 import Foundation
 
@@ -18,11 +20,5 @@ class ChatMessage: ObservableObject {
     
     func append(_ item: ChatMessageItem) {
         self.items.append(item)
-    }
-
-    func send(_ item: ChatMessageItem) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.items.append(item)
-        }
     }
 }

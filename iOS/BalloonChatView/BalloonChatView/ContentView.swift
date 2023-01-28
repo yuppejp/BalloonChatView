@@ -2,6 +2,8 @@
 //  ContentView.swift
 //  BalloonChatView
 //
+//  Created by yuppe on 2023/01/11.
+//
 
 import SwiftUI
 
@@ -12,67 +14,63 @@ struct ContentView: View {
 }
 
 struct SampleView: View {
-    @StateObject var message1 = ChatMessage()
-    @StateObject var message2 = ChatMessage()
+    @StateObject var myMessage = ChatMessage()
+    @StateObject var yourMessage = ChatMessage()
+    let me = User(userName: "Me", iconName: "person.circle")
+    let you = User(userName: "You", iconName: "person.crop.circle")
 
     var body: some View {
-        let user1 = User(userName: "Alex", iconName: "person.circle")
-        let user2 = User(userName: "Taylor", iconName: "person.crop.circle")
         
         VStack {
-            Text("Me: " + user1.userName)
+            Text("Me: " + me.userName)
                 .font(.headline)
-            BalloonChatView(me: user1, you: user2, message: message1, onMessageSubmit: { item in
-                message2.send(item)
-            })
-            .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
+            ChatView(me: me, you: you, message: myMessage)
+                .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
             
             Divider()
             
-            Text("You: " + user2.userName)
+            Text("You: " + you.userName)
                 .font(.headline)
-            BalloonChatView(me: user2, you: user1, message: message2, onMessageSubmit: { item in
-                message1.send(item)
-            })
-            .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
-
+            ChatView(me: you, you: me, message: yourMessage)
+                .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
+            
             Spacer()
             
             HStack {
                 Button("me to you") {
-                    let item = ChatMessageItem(from: user1, to: user2, text: "sample message " + generator(30))
-                    message1.append(item)
-                    message2.send(item)
+                    let item = ChatMessageItem(from: me, to: you, text: "sample message " + generator(30))
+                    myMessage.append(item)
+                    yourMessage.append(item)
                 }
                 Button("you to me") {
-                    let item = ChatMessageItem(from: user2, to: user1, text: "sample message " + generator(30))
-                    message2.append(item)
-                    message1.send(item)
+                    let item = ChatMessageItem(from: you, to: me, text: "sample message " + generator(30))
+                    yourMessage.append(item)
+                    myMessage.append(item)
                 }
                 Button("Clear") {
-                    message1.items.removeAll()
-                    message2.items.removeAll()
+                    myMessage.items.removeAll()
+                    yourMessage.items.removeAll()
                 }
             }
             .buttonStyle(.bordered)
             
         }
         .onAppear {
-            var item = ChatMessageItem(from: user1, to: user2, text: "sample message1")
-            message1.append(item)
-            message2.append(item)
-
-            item = ChatMessageItem(from: user1, to: user2, text: "sample message2")
-            message1.append(item)
-            message2.append(item)
-
-            item = ChatMessageItem(from: user2, to: user1, text: "sample message3")
-            message1.append(item)
-            message2.append(item)
+            var item = ChatMessageItem(from: me, to: you, text: "sample message1")
+            myMessage.append(item)
+            yourMessage.append(item)
+            
+            item = ChatMessageItem(from: me, to: you, text: "sample message2")
+            myMessage.append(item)
+            yourMessage.append(item)
+            
+            item = ChatMessageItem(from: you, to: me, text: "sample message3")
+            myMessage.append(item)
+            yourMessage.append(item)
         }
         .padding()
     }
-
+    
     private func generator(_ length: Int) -> String {
         let letters = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz0123456789"
         var randomString = ""

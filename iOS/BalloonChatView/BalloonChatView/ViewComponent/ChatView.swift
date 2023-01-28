@@ -1,16 +1,16 @@
 //
-//  BalloonChatView.swift
+//  ChatView.swift
 //  BalloonChatView
+//
+//  Created by yuppe on 2023/01/11.
 //
 
 import SwiftUI
 
-struct BalloonChatView: View {
+struct ChatView: View {
     let me: User
     let you: User
     @ObservedObject var message: ChatMessage
-    var onMessageSubmit: (_ item: ChatMessageItem) -> Void = { item in }
-    @State private var inputText = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,7 +19,7 @@ struct BalloonChatView: View {
                     ScrollView {
                         VStack {
                             ForEach(message.items) { item in
-                                MessageItemView(me: me, message: item)
+                                MessageItemView(me: me, you: you, message: item)
                                     .id(item.id)
                                     .font(.footnote)
                             }
@@ -45,130 +45,191 @@ struct BalloonChatView: View {
                     }
                 }
             }
-            .onTapGesture {
-                UIApplication.shared.closeKeyboard()
-            }
-
-            HStack {
-                TextField("Input Message...", text: $inputText)
-                    .onSubmit {
-                        if !inputText.isEmpty {
-                            let item = ChatMessageItem(from: me, to: you, text: inputText)
-                            message.append(item)
-                            inputText = ""
-                            onMessageSubmit(item)
-                        }
-                    }
-                    .font(.footnote)
-                    .keyboardType(.default)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(4)
-            }
         }
-        .background(.background.opacity(0.5))
     }
 }
 
 struct MessageItemView: View {
     var me: User
+    var you: User
     var message: ChatMessageItem
     
     var body: some View {
-        if message.from.userName == me.userName {
-            MyMessageItemView(message: message)
+        if message.from.id == me.id {
+            MyMessageItemView(
+                message: message,
+                fourgroundColor: me.foregroundColor,
+                backgroundColor: me.backgroundColor,
+                strokeColor: me.strokeColor,
+                strokeStyle: me.strokeStyle,
+                flipUpsideDown: me.flipUpsideDown,
+                showTime: me.showTime)
         } else {
-            YourMessageItemView(message: message)
-        }
-    }
-}
-
-struct YourMessageItemView: View {
-    var message: ChatMessageItem
-    
-    var body: some View {
-        HStack(spacing: 2) {
-            VStack {
-                Image(systemName: message.from.iconName)
-                    .font(.largeTitle)
-                    .foregroundColor(.primary.opacity(0.5))
-                Spacer()
-            }
-            VStack(alignment: .leading, spacing: 0) {
-                Text(message.from.userName)
-                    .font(.caption2)
-                    .padding(.bottom, 4)
-                HStack(spacing: 2) {
-                    BalloonText(message.text, color: .white, mirrored: true)
-                        .font(.body)
-                        .foregroundColor(.black)
-                    Text(message.date, style: .time)
-                        .font(.caption2)
-                        .padding(.leading, 4)
-                        .frame(maxHeight: .infinity, alignment: .bottom)
-                }
-            }
-            Spacer(minLength: 50)
+            YourMessageItemView(
+                message: message,
+                fourgroundColor: you.foregroundColor,
+                backgroundColor: you.backgroundColor,
+                strokeColor: you.strokeColor,
+                strokeStyle: you.strokeStyle,
+                flipUpsideDown: you.flipUpsideDown,
+                showTime: you.showTime)
         }
     }
 }
 
 struct MyMessageItemView: View {
     @State var message: ChatMessageItem
-    
+    var fourgroundColor: Color = .primary
+    var backgroundColor: Color = .green
+    var strokeColor: Color? = nil
+    var strokeStyle: StrokeStyle? = nil
+    var flipUpsideDown = false
+    var showTime = true
+
     var body: some View {
         HStack(spacing: 2) {
             Spacer(minLength: 50)
             VStack(alignment: .trailing, spacing: 0) {
-                Text(message.from.userName)
-                    .font(.caption2)
-                    .padding(.bottom, 4)
+                if flipUpsideDown {
+                    Spacer()
+                } else {
+                    if !message.from.userName.isEmpty {
+                        Text(message.from.userName)
+                            .font(.caption2)
+                            .padding(.bottom, 4)
+                    }
+                }
                 HStack(spacing: 2) {
-                    Text(message.date, style: .time)
-                        .font(.caption2)
-                        .padding(.trailing, 4)
-                        .frame(maxHeight: .infinity, alignment: .bottom)
-                    BalloonText(message.text, mirrored: false)
+                    if showTime {
+                        Text(message.date, style: .time)
+                            .font(.caption2)
+                            .padding(.trailing, 4)
+                            .frame(maxHeight: .infinity, alignment: .bottom)
+                    }
+                    BalloonText(text: message.text,
+                                fourgroundColor: fourgroundColor,
+                                backgroundColor: backgroundColor,
+                                strokeColor: strokeColor,
+                                strokeStyle: strokeStyle,
+                                flipHorizontal: false,
+                                flipUpsideDown: flipUpsideDown)
                         .font(.body)
-                        .foregroundColor(.black)
+                }
+                if flipUpsideDown {
+                    if !message.from.userName.isEmpty {
+                        Text(message.from.userName)
+                            .font(.caption2)
+                            .padding(.bottom, 4)
+                    }
+                } else  {
+                    Spacer()
                 }
             }
-            VStack {
-                Image(systemName: message.from.iconName)
-                    .font(.largeTitle)
-                    .foregroundColor(.primary.opacity(0.5))
-                Spacer()
+            if !message.from.iconName.isEmpty {
+                VStack {
+                    if flipUpsideDown {
+                        Spacer()
+                    }
+                    Image(systemName: message.from.iconName)
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        //.clipShape(Circle())
+                        .offset(y: flipUpsideDown ? 4 : 0)
+                    if !flipUpsideDown {
+                        Spacer()
+                    }
+                }
             }
         }
     }
 }
 
-extension UIApplication {
-    func closeKeyboard() {
-        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+struct YourMessageItemView: View {
+    var message: ChatMessageItem
+    var fourgroundColor: Color = .primary
+    var backgroundColor: Color = .white
+    var strokeColor: Color? = .gray
+    var strokeStyle: StrokeStyle? = nil
+    var flipUpsideDown = false
+    var showTime = true
+    
+    var body: some View {
+        HStack(spacing: 2) {
+            if !message.from.iconName.isEmpty {
+                VStack {
+                    if flipUpsideDown {
+                        Spacer()
+                    }
+                    Image(systemName: message.from.iconName)
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        //.clipShape(Circle())
+                    if !flipUpsideDown {
+                        Spacer()
+                    }
+                }
+                .offset(y: flipUpsideDown ? 4 : 0)
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                if flipUpsideDown {
+                    Spacer()
+                } else {
+                    if !message.from.userName.isEmpty {
+                        Text(message.from.userName)
+                            .font(.caption2)
+                            .padding(.bottom, 4)
+                    }
+                }
+                HStack(spacing: 2) {
+                    BalloonText(text: message.text,
+                                fourgroundColor: fourgroundColor,
+                                backgroundColor: backgroundColor,
+                                strokeColor: strokeColor,
+                                strokeStyle: strokeStyle,
+                                flipHorizontal: true,
+                                flipUpsideDown: flipUpsideDown)
+                        .font(.body)
+                    if showTime {
+                        Text(message.date, style: .time)
+                            .font(.caption2)
+                            .padding(.leading, 4)
+                            .frame(maxHeight: .infinity, alignment: .bottom)
+                    }
+                }
+                if flipUpsideDown {
+                    if !message.from.userName.isEmpty {
+                        Text(message.from.userName)
+                            .font(.caption2)
+                            .padding(.bottom, 4)
+                    }
+                } else {
+                    Spacer()
+                }
+            }
+            Spacer(minLength: 50)
+        }
     }
 }
 
-struct BalloonChatView_Previews: PreviewProvider {
+struct ChatView_Previews: PreviewProvider {
     static var previews: some View {
-        let message1 = ChatMessage()
-        let user1 = User(userName: "user1", iconName: "person.circle")
-        let user2 = User(userName: "user2", iconName: "person.crop.circle")
+        let model = ChatMessage()
+        let user1 = User(userName: "me", iconName: "person", flipUpsideDown: true)
+        let user2 = User(userName: "you", iconName: "circle.grid.cross", flipUpsideDown: true)
 
         VStack {
-            BalloonChatView(me: user1, you: user2, message: message1, onMessageSubmit: { item in
-                print(item.text)
-            })
-            .background(Color.secondary)
-            .padding()
+            ChatView(me: user1, you: user2, message: model)
+            //.background(Color.secondary)
+            //.padding()
         }
         .onAppear {
-            message1.append(ChatMessageItem(from: user1, to: user2, text: "message1"))
-            message1.append(ChatMessageItem(from: user1, to: user2, text: "message2"))
+            model.append(ChatMessageItem(from: user1, to: user2, text: "message1"))
+            model.append(ChatMessageItem(from: user1, to: user2, text: "message2 jlasdjfoidofjoaidjslkajflksdalfsdklfjllskdjflajksdflasdjf"))
             
-            message1.append(ChatMessageItem(from: user2, to: user1, text: "message3"))
-            message1.append(ChatMessageItem(from: user2, to: user1, text: "message4"))
+            model.append(ChatMessageItem(from: user2, to: user1, text: "message3"))
+            model.append(ChatMessageItem(from: user2, to: user1, text: "message4 aaadkalsjflajksdflajsdflkjaldsf;jlasdjfoidofjoaidjslkajflksdalfsdklfjllskdjflajksdflasdjf"))
             
-            message1.append(ChatMessageItem(from: user1, to: user2, text: "message5"))
+            model.append(ChatMessageItem(from: user1, to: user2, text: "message5"))
         }
     }
 }

@@ -2,44 +2,47 @@
 //  BalloonText.swift
 //  BalloonChatView
 //
+//  Created by yuppe on 2023/01/11.
+//
 
 import SwiftUI
 
 struct BalloonText: View {
-    let text: String
-    let color: Color
-    let mirrored: Bool
-    
-    init(_ text: String,
-         color: Color = Color(UIColor(red: 109/255, green: 230/255, blue: 123/255, alpha: 1.0)),
-         mirrored: Bool = false
-    ) {
-        self.text = text
-        self.color = color
-        self.mirrored = mirrored
-    }
+    var text: String
+    var fourgroundColor: Color = .primary
+    var backgroundColor: Color = Color(UIColor(red: 0x6d/0xff, green: 0xe6/0xff, blue: 0x7b/0xff, alpha: 1.0))
+    var strokeColor: Color? = nil
+    var strokeStyle: StrokeStyle? = nil
+    var flipHorizontal: Bool = false
+    var flipUpsideDown: Bool  = false
 
     var body: some View {
         let cornerRadius = 10.0
         
         Text(text)
-            .padding(.leading, 8 + (mirrored ? cornerRadius * 0.6 : 0))
-            .padding(.trailing, 8 + (!mirrored ? cornerRadius * 0.6 : 0))
+            .padding(.leading, 8 + (flipHorizontal ? cornerRadius * 0.6 : 0))
+            .padding(.trailing, 8 + (!flipHorizontal ? cornerRadius * 0.6 : 0))
             .padding(.vertical, 8 / 2)
-            //.foregroundColor(.white)
+            .foregroundColor(fourgroundColor)
             .background(BalloonShape(
                 cornerRadius: cornerRadius,
-                color: color,
-                mirrored: mirrored)
+                backgroundColor: backgroundColor,
+                strokeColor: strokeColor,
+                strokeStyle: strokeStyle,
+                flipHorizontal: flipHorizontal,
+                flipUpsideDown: flipUpsideDown)
             )
     }
 }
 
 struct BalloonShape: View {
     var cornerRadius: Double
-    var color: Color
-    var mirrored = false
-    
+    var backgroundColor: Color
+    var strokeColor: Color?
+    var strokeStyle: StrokeStyle? = nil
+    var flipHorizontal = false
+    var flipUpsideDown = false
+
     var body: some View {
         GeometryReader { geometry in
             Path { path in
@@ -109,9 +112,14 @@ struct BalloonShape: View {
                     radius: cornerRadius,
                     startAngle: Angle(degrees: 90),
                     endAngle: Angle(degrees: 180), clockwise: false)
+                
+                path.closeSubpath()
             }
-            .fill(self.color)
-            .rotation3DEffect(.degrees(mirrored ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+            //.stroke()
+            //.fill(self.color)
+            .fill(backgroundColor, strokeContent: strokeColor, strokeStyle: strokeStyle)
+            .rotation3DEffect(.degrees(flipHorizontal ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+            .rotation3DEffect(.degrees(flipUpsideDown ? 180 : 0), axis: (x: 1, y: 0, z: 0))
         }
     }
 }
@@ -119,8 +127,29 @@ struct BalloonShape: View {
 struct BalloonText_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            BalloonText("message1", color: .green)
-            BalloonText("message2", color: .primary.opacity(0.3), mirrored: true)
+            BalloonText(text: "message1", backgroundColor: .green)
+            BalloonText(text: "message2", backgroundColor: .white, strokeColor: .gray, flipHorizontal: true)
+
+            BalloonText(text: "message3", backgroundColor: .green, flipUpsideDown: true)
+            BalloonText(text: "message4", backgroundColor: .primary.opacity(0.3), flipHorizontal: true, flipUpsideDown: true)
+        }
+    }
+}
+
+extension Shape {
+    public func fill<S:ShapeStyle>(
+        _ fillContent: S,
+        strokeContent: S?,
+        strokeStyle: StrokeStyle?
+    ) -> some View {
+        ZStack {
+            self.fill(fillContent)
+            
+            if let strokeContent, let strokeStyle {
+                self.stroke(strokeContent, style: strokeStyle)
+            } else if let strokeContent {
+                self.stroke(strokeContent)
+            }
         }
     }
 }
