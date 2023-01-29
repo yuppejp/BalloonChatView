@@ -10,7 +10,7 @@ import SwiftUI
 struct ChatView: View {
     let me: User
     let you: User
-    @ObservedObject var message: ChatMessage
+    @ObservedObject var message: ChatMessageHolder
 
     var body: some View {
         VStack(spacing: 0) {
@@ -213,21 +213,19 @@ struct YourMessageItemView: View {
 
 struct ChatView_Previews: PreviewProvider {
     static var previews: some View {
-        let model = ChatMessage()
-        let user1 = User(userName: "me", iconName: "person", flipUpsideDown: true)
-        let user2 = User(userName: "you", iconName: "circle.grid.cross", flipUpsideDown: true)
+        let model = ChatMessageHolder()
+        let user1 = User(userName: "me", iconName: "person.circle")
+        let user2 = User(userName: "you", iconName: "person.circle")
 
         VStack {
             ChatView(me: user1, you: user2, message: model)
-            //.background(Color.secondary)
-            //.padding()
         }
         .onAppear {
             model.append(ChatMessageItem(from: user1, to: user2, text: "message1"))
-            model.append(ChatMessageItem(from: user1, to: user2, text: "message2 jlasdjfoidofjoaidjslkajflksdalfsdklfjllskdjflajksdflasdjf"))
+            model.append(ChatMessageItem(from: user1, to: user2, text: "message2. Sample text for longer messages. Is it displayed properly?"))
             
             model.append(ChatMessageItem(from: user2, to: user1, text: "message3"))
-            model.append(ChatMessageItem(from: user2, to: user1, text: "message4 aaadkalsjflajksdflajsdflkjaldsf;jlasdjfoidofjoaidjslkajflksdalfsdklfjllskdjflajksdflasdjf"))
+            model.append(ChatMessageItem(from: user2, to: user1, text: "message4. I think it's probably displayed well"))
             
             model.append(ChatMessageItem(from: user1, to: user2, text: "message5"))
         }

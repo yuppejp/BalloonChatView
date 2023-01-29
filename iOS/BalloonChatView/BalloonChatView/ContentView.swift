@@ -9,43 +9,92 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        SampleView()
+        VStack {
+            VStack {
+                Text("Chat View Smaple")
+                    .font(.title)
+                SampleView()
+            }
+        }
     }
 }
 
 struct SampleView: View {
-    @StateObject var myMessage = ChatMessage()
-    @StateObject var yourMessage = ChatMessage()
-    let me = User(userName: "Me", iconName: "person.circle")
-    let you = User(userName: "You", iconName: "person.crop.circle")
+    @StateObject var myMessage = ChatMessageHolder()
+    @StateObject var yourMessage = ChatMessageHolder()
+    @State private var inputText1 = ""
+    @State private var inputText2 = ""
+    let me = User(userName: "user1", iconName: "person.circle")
+    let you = User(userName: "user2", iconName: "person.circle.fill")
 
     var body: some View {
-        
         VStack {
-            Text("Me: " + me.userName)
-                .font(.headline)
-            ChatView(me: me, you: you, message: myMessage)
-                .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
-            
-            Divider()
-            
-            Text("You: " + you.userName)
-                .font(.headline)
-            ChatView(me: you, you: me, message: yourMessage)
-                .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
-            
+            VStack(spacing: 0) {
+                Text("Me: " + me.userName)
+                    .font(.headline)
+                ChatView(me: me, you: you, message: myMessage)
+                HStack {
+                    TextField("Input Message...", text: $inputText1)
+                        .onSubmit {
+                            if !inputText1.isEmpty {
+                                let item = ChatMessageItem(from: me, to: you, text: inputText1)
+                                myMessage.append(item)
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // 1 second later
+                                    yourMessage.append(item)
+                                }
+                                inputText1 = ""
+                            }
+                        }
+                        .font(.footnote)
+                        .keyboardType(.default)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(4)
+                }
+            }
+            .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
+            .padding()
+
+            VStack(spacing: 0) {
+                Text("You: " + you.userName)
+                    .font(.headline)
+                ChatView(me: you, you: me, message: yourMessage)
+                HStack {
+                    TextField("Input Message...", text: $inputText2)
+                        .onSubmit {
+                            if !inputText2.isEmpty {
+                                let item = ChatMessageItem(from: me, to: you, text: inputText2)
+                                yourMessage.append(item)
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // 1 second later
+                                    myMessage.append(item)
+                                }
+                                inputText2 = ""
+                            }
+                        }
+                        .font(.footnote)
+                        .keyboardType(.default)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(4)
+                }
+            }
+            .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
+            .padding()
+
             Spacer()
             
             HStack {
-                Button("me to you") {
+                Button("Me to You") {
                     let item = ChatMessageItem(from: me, to: you, text: "sample message " + generator(30))
                     myMessage.append(item)
-                    yourMessage.append(item)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // 1 second later
+                        yourMessage.append(item)
+                    }
                 }
-                Button("you to me") {
+                Button("You to Me") {
                     let item = ChatMessageItem(from: you, to: me, text: "sample message " + generator(30))
                     yourMessage.append(item)
-                    myMessage.append(item)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // 1 second later
+                        myMessage.append(item)
+                    }
                 }
                 Button("Clear") {
                     myMessage.items.removeAll()
@@ -53,7 +102,6 @@ struct SampleView: View {
                 }
             }
             .buttonStyle(.bordered)
-            
         }
         .onAppear {
             var item = ChatMessageItem(from: me, to: you, text: "sample message1")
@@ -68,7 +116,6 @@ struct SampleView: View {
             myMessage.append(item)
             yourMessage.append(item)
         }
-        .padding()
     }
     
     private func generator(_ length: Int) -> String {

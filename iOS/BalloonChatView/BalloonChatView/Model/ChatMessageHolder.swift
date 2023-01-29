@@ -15,7 +15,7 @@ struct ChatMessageItem: Identifiable {
     var text: String
 }
 
-class ChatMessage: ObservableObject {
+class ChatMessageHolder: ObservableObject {
     @Published var items: [ChatMessageItem] = []
     
     func append(_ item: ChatMessageItem) {
