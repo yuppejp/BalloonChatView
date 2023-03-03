@@ -20,12 +20,12 @@ struct ContentView: View {
 }
 
 struct SampleView: View {
-    @StateObject var myMessage = ChatMessageHolder()
-    @StateObject var yourMessage = ChatMessageHolder()
+    @StateObject private var myMessage = ChatMessageHolder()
+    @StateObject private var yourMessage = ChatMessageHolder()
     @State private var inputText1 = ""
     @State private var inputText2 = ""
-    let me = User(userName: "user1", iconName: "person.circle")
-    let you = User(userName: "user2", iconName: "person.circle.fill")
+    private let me = User(userName: "user1", iconName: "person.circle")
+    private let you = User(userName: "user2", iconName: "person.circle.fill", backgroundColor: Color(UIColor.systemBackground))
 
     var body: some View {
         VStack {
@@ -51,7 +51,7 @@ struct SampleView: View {
                         .padding(4)
                 }
             }
-            .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
+            .background(Color(UIColor.lightGray).opacity(0.5))
             .padding()
 
             VStack(spacing: 0) {
@@ -76,7 +76,7 @@ struct SampleView: View {
                         .padding(4)
                 }
             }
-            .background(Color(UIColor(red: 212/255, green: 216/255, blue: 228/255, alpha: 1.0)))
+            .background(Color(UIColor.lightGray).opacity(0.5))
             .padding()
 
             Spacer()

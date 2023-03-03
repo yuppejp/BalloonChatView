@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     //ChatView()
-                    //Greeting("Android")
+                    Greeting("Android")
                 }
             }
         }
