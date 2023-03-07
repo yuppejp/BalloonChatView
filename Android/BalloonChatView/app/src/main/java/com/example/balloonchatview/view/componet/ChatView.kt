@@ -1,16 +1,13 @@
 @file:Suppress("OPT_IN_IS_NOT_ENABLED")
 
-package com.example.balloonchatview
+package com.example.balloonchatview.view.componet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -18,41 +15,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.MutableLiveData
+import com.example.balloonchatview.MyBalloonText
+import com.example.balloonchatview.YourBalloonText
+import com.example.balloonchatview.model.ChatMessage
+import com.example.balloonchatview.model.ChatViewModel
 import com.example.balloonchatview.ui.theme.BalloonChatViewTheme
+import com.example.balloonchatview.view.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 
-class ChatMessage(userName: String, text: String) {
-    var userName: String
-    var text: String
-    var date: String
-
-    init {
-        this.userName = userName
-        this.text = text
-        this.date = SimpleDateFormat("HH:mm").format(Date())
-    }
-}
+//class ChatMessage(userName: String, text: String) {
+//    var userName: String
+//    var text: String
+//    var date: String
+//
+//    init {
+//        this.userName = userName
+//        this.text = text
+//        this.date = SimpleDateFormat("HH:mm").format(Date())
+//    }
+//}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ChatView(viewModel: ChatViewModel, modifier: Modifier = Modifier) {
+fun ChatView(me: User, you: User, viewModel: ChatViewModel, modifier: Modifier = Modifier) {
     val state = rememberLazyListState()
-    var inputText by remember { mutableStateOf("") }
-    //val me: String
-    //var chatMessages = mutableListOf<ChatMessage>() //   MutableLiveData<MutableList<ChatMessage>>(mutableStateListOf()) //ArrayList<ChatMessage>()
     val messages = viewModel.messages.observeAsState()
-    val myName = viewModel.myName.observeAsState()
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(modifier = modifier) {
         LazyColumn(
@@ -61,9 +54,9 @@ fun ChatView(viewModel: ChatViewModel, modifier: Modifier = Modifier) {
                 .padding(2.dp),
             state
         ) {
-            if (messages.value?.count()!! >= 0) {
+            if (viewModel.messages.value?.count()!! >= 0) {
                 items(messages.value!!) { message ->
-                    MessageItemView(myName.value!!, message)
+                    MessageItemView(me, you, message)
                     Spacer(modifier = Modifier.padding(bottom = 4.dp))
                 }
 
@@ -74,29 +67,12 @@ fun ChatView(viewModel: ChatViewModel, modifier: Modifier = Modifier) {
                 }
             }
         }
-
-        OutlinedTextField(
-            value = inputText,
-            onValueChange = { inputText = it },
-            placeholder = { Text("メッセージを入力してください") },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = {
-                // キーボードを閉じる
-                // ref: https://qiita.com/penguinshunya/items/a9986fa2a0663d07e1cc
-                keyboardController?.hide()
-                //viewModel.sendMessage(inputText)
-                inputText = ""
-            }),
-            modifier = Modifier
-                .padding(5.dp)
-                .fillMaxWidth()
-        )
     }
 }
 
 @Composable
-fun MessageItemView(me: String, message: ChatMessage, modifier: Modifier = Modifier) {
-    if (message.userName != me) {
+fun MessageItemView(me: User, you: User, message: ChatMessage, modifier: Modifier = Modifier) {
+    if (message.from.id != me.id) {
         Row(modifier = modifier) {
 //            Image(
 //                painter = painterResource(id = message.user.icon),
@@ -110,14 +86,14 @@ fun MessageItemView(me: String, message: ChatMessage, modifier: Modifier = Modif
                 modifier = Modifier.weight(4f, false)
             ) {
                 Text(
-                    message.userName,
+                    you.userName,
                     style = MaterialTheme.typography.caption,
                     //fontSize = 8.sp
                 )
                 Row {
                     YourBalloonText(message.text)
                     Text(
-                        message.date,
+                        message.date.toString(),
                         style = MaterialTheme.typography.caption,
                         //fontSize = 8.sp,
                         modifier = Modifier
@@ -136,7 +112,7 @@ fun MessageItemView(me: String, message: ChatMessage, modifier: Modifier = Modif
                 modifier = Modifier.weight(4f)
             ) {
                 Text(
-                    message.userName,
+                    me.userName,
                     style = MaterialTheme.typography.caption,
                     //fontSize = 8.sp,
                     textAlign = TextAlign.End,
@@ -148,21 +124,21 @@ fun MessageItemView(me: String, message: ChatMessage, modifier: Modifier = Modif
                             .align(Alignment.Bottom)
                             .padding(end = 2.dp)
                     ) {
-//                        if (message.readCount > 0) {
-//                            Text(
-//                                " 既読" +
-//                                        if (message.readCount >= 2) {
-//                                            " ${message.readCount}"
-//                                        } else {
-//                                            ""
-//                                        },
-//                                style = MaterialTheme.typography.caption,
-//                                //fontSize = 8.sp,
-//                                modifier = Modifier.align(Alignment.End)
-//                            )
-//                        }
+                        if (message.readCount > 0) {
+                            Text(
+                                " 既読" +
+                                        if (message.readCount >= 2) {
+                                            " ${message.readCount}"
+                                        } else {
+                                            ""
+                                        },
+                                style = MaterialTheme.typography.caption,
+                                //fontSize = 8.sp,
+                                modifier = Modifier.align(Alignment.End)
+                            )
+                        }
                         Text(
-                            message.date,
+                            message.date.toString(),
                             style = MaterialTheme.typography.caption,
                             //fontSize = 8.sp,
                             modifier = Modifier.align(Alignment.End)
@@ -187,7 +163,18 @@ fun MessageItemView(me: String, message: ChatMessage, modifier: Modifier = Modif
 @Composable
 fun ChatViewPreview() {
     BalloonChatViewTheme {
-        val viewModel = ChatViewModel(preview = true)
-        ChatView(viewModel)
+        val viewModel = ChatViewModel(/*preview = true*/)
+        val user1 = User(userName = "me", iconName = "person.circle")
+        val user2 = User(userName = "you", iconName = "person.circle")
+
+        viewModel.messages.value?.add(ChatMessage(from = user1, to = user2, text = "message1"))
+        viewModel.messages.value?.add(ChatMessage(from = user1, to = user2, text = "message2. Sample text for longer messages. Is it displayed properly?"))
+
+        viewModel.messages.value?.add(ChatMessage(from = user2, to = user1, text = "message3"))
+        viewModel.messages.value?.add(ChatMessage(from = user2, to = user1, text = "message4. I think it's probably displayed well"))
+
+        viewModel.messages.value?.add(ChatMessage(from = user1, to = user2, text = "message5"))
+
+        ChatView(me = user1, you = user2, viewModel)
     }
 }

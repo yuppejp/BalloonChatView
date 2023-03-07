@@ -10,7 +10,7 @@ import SwiftUI
 struct ChatView: View {
     let me: User
     let you: User
-    @ObservedObject var message: ChatMessageHolder
+    @ObservedObject var viewModel: ChatViewModel
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,7 +18,7 @@ struct ChatView: View {
                 VStack {
                     ScrollView {
                         VStack {
-                            ForEach(message.items) { item in
+                            ForEach(viewModel.messages) { item in
                                 MessageItemView(me: me, you: you, message: item)
                                     .id(item.id)
                                     .font(.footnote)
@@ -32,14 +32,14 @@ struct ChatView: View {
                 .padding(4)
                 .onAppear {
                     withAnimation() {
-                        if let lastItem = message.items.last {
+                        if let lastItem = viewModel.messages.last {
                             reader.scrollTo(lastItem.id, anchor: .bottom)
                         }
                     }
                 }
-                .onChange(of: message.items.count) { _ in
+                .onChange(of: viewModel.messages.count) { _ in
                     withAnimation() {
-                        if let lastItem = message.items.last {
+                        if let lastItem = viewModel.messages.last {
                             reader.scrollTo(lastItem.id, anchor: .bottom)
                         }
                     }
@@ -52,7 +52,7 @@ struct ChatView: View {
 struct MessageItemView: View {
     var me: User
     var you: User
-    var message: ChatMessageItem
+    var message: ChatMessage
     
     var body: some View {
         if message.from.id == me.id {
@@ -78,7 +78,7 @@ struct MessageItemView: View {
 }
 
 struct MyMessageItemView: View {
-    @State var message: ChatMessageItem
+    @State var message: ChatMessage
     var fourgroundColor: Color = .primary
     var backgroundColor: Color = .green
     var strokeColor: Color? = nil
@@ -145,7 +145,7 @@ struct MyMessageItemView: View {
 }
 
 struct YourMessageItemView: View {
-    var message: ChatMessageItem
+    var message: ChatMessage
     var fourgroundColor: Color = .primary
     var backgroundColor: Color = .white
     var strokeColor: Color? = .gray
@@ -213,21 +213,22 @@ struct YourMessageItemView: View {
 
 struct ChatView_Previews: PreviewProvider {
     static var previews: some View {
-        let model = ChatMessageHolder()
+        let viewModel = ChatViewModel()
         let user1 = User(userName: "me", iconName: "person.circle")
-        let user2 = User(userName: "you", iconName: "person.circle")
+        let user2 = User(userName: "you", iconName: "person.circle",
+                         foregroundColor: .white, backgroundColor: .gray)
 
         VStack {
-            ChatView(me: user1, you: user2, message: model)
+            ChatView(me: user1, you: user2, viewModel: viewModel)
         }
         .onAppear {
-            model.append(ChatMessageItem(from: user1, to: user2, text: "message1"))
-            model.append(ChatMessageItem(from: user1, to: user2, text: "message2. Sample text for longer messages. Is it displayed properly?"))
+            viewModel.append(ChatMessage(from: user1, to: user2, text: "message1"))
+            viewModel.append(ChatMessage(from: user1, to: user2, text: "message2. Sample text for longer messages. Is it displayed properly?"))
             
-            model.append(ChatMessageItem(from: user2, to: user1, text: "message3"))
-            model.append(ChatMessageItem(from: user2, to: user1, text: "message4. I think it's probably displayed well"))
+            viewModel.append(ChatMessage(from: user2, to: user1, text: "message3"))
+            viewModel.append(ChatMessage(from: user2, to: user1, text: "message4. I think it's probably displayed well"))
             
-            model.append(ChatMessageItem(from: user1, to: user2, text: "message5"))
+            viewModel.append(ChatMessage(from: user1, to: user2, text: "message5"))
         }
     }
 }
