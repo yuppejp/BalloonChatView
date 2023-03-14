@@ -7,7 +7,7 @@ class User(userName: String, iconName: String = "") {
     val id = UUID.randomUUID()
     val userName: String
     val iconName: String
-    var foregroundColor: Color = Color.Black
+    var color: Color = Color.Black
     var backgroundColor: Color = Color.Green
     var strokeColor: Color? = null
     //var strokeStyle: StrokeStyle? = null

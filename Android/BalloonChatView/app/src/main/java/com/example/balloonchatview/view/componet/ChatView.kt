@@ -18,11 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.balloonchatview.MyBalloonText
-import com.example.balloonchatview.YourBalloonText
-import com.example.balloonchatview.model.ChatMessage
+import com.example.balloonchatview.OutgoingBalloonText
+import com.example.balloonchatview.IncomingBalloonText
 import com.example.balloonchatview.model.ChatViewModel
 import com.example.balloonchatview.ui.theme.BalloonChatViewTheme
+import com.example.balloonchatview.view.model.ChatMessage
 import com.example.balloonchatview.view.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,38 +74,6 @@ fun ChatView(me: User, you: User, viewModel: ChatViewModel, modifier: Modifier =
 fun MessageItemView(me: User, you: User, message: ChatMessage, modifier: Modifier = Modifier) {
     if (message.from.id != me.id) {
         Row(modifier = modifier) {
-//            Image(
-//                painter = painterResource(id = message.user.icon),
-//                contentDescription = "",
-//                modifier = Modifier
-//                    .height(40.dp)
-//                    .padding(start = 2.dp, top = 1.dp)
-//                    .clip(CircleShape)
-//            )
-            Column(
-                modifier = Modifier.weight(4f, false)
-            ) {
-                Text(
-                    you.userName,
-                    style = MaterialTheme.typography.caption,
-                    //fontSize = 8.sp
-                )
-                Row {
-                    YourBalloonText(message.text)
-                    Text(
-                        message.date.toString(),
-                        style = MaterialTheme.typography.caption,
-                        //fontSize = 8.sp,
-                        modifier = Modifier
-                            .align(Alignment.Bottom)
-                            .padding(start = 1.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-        }
-    } else {
-        Row(modifier = modifier) {
             Spacer(modifier = Modifier.weight(1f))
             Column(
                 horizontalAlignment = Alignment.End,
@@ -144,7 +112,7 @@ fun MessageItemView(me: User, you: User, message: ChatMessage, modifier: Modifie
                             modifier = Modifier.align(Alignment.End)
                         )
                     }
-                    MyBalloonText(message.text)
+                    OutgoingBalloonText(message.text)
                 }
             }
 //            Image(
@@ -155,6 +123,39 @@ fun MessageItemView(me: User, you: User, message: ChatMessage, modifier: Modifie
 //                    .padding(start = 2.dp, top = 1.dp)
 //                    .clip(CircleShape)
 //            )
+        }
+
+    } else {
+        Row(modifier = modifier) {
+//            Image(
+//                painter = painterResource(id = message.user.icon),
+//                contentDescription = "",
+//                modifier = Modifier
+//                    .height(40.dp)
+//                    .padding(start = 2.dp, top = 1.dp)
+//                    .clip(CircleShape)
+//            )
+            Column(
+                modifier = Modifier.weight(4f, false)
+            ) {
+                Text(
+                    you.userName,
+                    style = MaterialTheme.typography.caption,
+                    //fontSize = 8.sp
+                )
+                Row {
+                    IncomingBalloonText(message.text)
+                    Text(
+                        message.date.toString(),
+                        style = MaterialTheme.typography.caption,
+                        //fontSize = 8.sp,
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .padding(start = 1.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }

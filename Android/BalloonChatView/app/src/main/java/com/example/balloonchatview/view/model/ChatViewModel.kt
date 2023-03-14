@@ -2,6 +2,7 @@ package com.example.balloonchatview.model
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.MutableLiveData
+import com.example.balloonchatview.view.model.ChatMessage
 import com.example.balloonchatview.view.model.User
 import java.util.*
 

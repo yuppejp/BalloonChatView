@@ -1,9 +1,9 @@
 package com.example.balloonchatview
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,31 +15,38 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.balloonchatview.ui.theme.BalloonChatViewTheme
 
 @Composable
 fun BalloonText(
-    text: String,
     modifier: Modifier = Modifier,
-    balloonColor: Color = Color(red = 109, green = 230, blue = 123),
-    mirrored: Boolean = false
+    text: String,
+    color: Color = Color.Black,
+    backgroundColor: Color = Color(red = 109, green = 230, blue = 123),
+    borderWidth: Dp? = null,
+    borderColor: Color? = null,
+    isIncoming: Boolean = false
 ) {
-    if (mirrored) {
-        YourBalloonText(text, modifier, balloonColor)
+    if (isIncoming) {
+        IncomingBalloonText(text, modifier, color, backgroundColor, borderWidth, borderColor)
     } else {
-        MyBalloonText(text, modifier, balloonColor)
+        OutgoingBalloonText(text, modifier, color, backgroundColor, borderWidth, borderColor)
     }
 }
 
 @Composable
-fun MyBalloonText(
+fun OutgoingBalloonText(
     text: String,
     modifier: Modifier = Modifier,
-    balloonColor: Color = Color.Green
+    color: Color = Color.Black,
+    backgroundColor: Color = Color.Green,
+    borderWidth: Dp? = null,
+    borderColor: Color? = null
 ) {
-    val cornerRadius = with(LocalDensity.current) { 8.dp.toPx() }
-    val tailSize = Size(cornerRadius * 1.0f, cornerRadius * 0.5f)
+    val cornerRadius = with(LocalDensity.current) { 10.dp.toPx() }
+    val tailSize = Size(cornerRadius * 0.8f, cornerRadius * 0.2f)
     val tailWidthDp = with(LocalDensity.current) { tailSize.width.toDp() }
 
     val balloonShape = GenericShape { size, _ ->
@@ -51,9 +58,11 @@ fun MyBalloonText(
         var controlX: Float
         var controlY: Float
 
-        // 時計回りに描いていく
+        //
+        // draw clockwise
+        //
 
-        // 左上角丸
+        // rounded upper left corner
         x = shapeRect.left
         y = shapeRect.top
         arcRect = Rect(Offset(x, y), arcSize)
@@ -64,13 +73,13 @@ fun MyBalloonText(
             forceMoveTo = false
         )
 
-        // 右上角丸
+        // rounded upper right corner
         x = shapeRect.right - (cornerRadius * 2) - tailSize.width
         y = shapeRect.top
         arcRect = Rect(Offset(x, y), arcSize)
         arcTo(arcRect, 270f, 45f, false)
 
-        // しっぽ上部
+        // upper tail
         x = shapeRect.right
         y = shapeRect.top
         controlX = shapeRect.right - tailSize.width / 2
@@ -78,7 +87,7 @@ fun MyBalloonText(
         //lineTo(x, y)
         quadraticBezierTo(controlX, controlY, x, y)
 
-        // しっぽ下部
+        // lower tail
         x = shapeRect.right - tailSize.width
         y = shapeRect.top + (cornerRadius / 2) + tailSize.height
         controlX = shapeRect.right - tailSize.width / 2
@@ -86,36 +95,45 @@ fun MyBalloonText(
         //lineTo(x, y)
         quadraticBezierTo(controlX, controlY, x, y)
 
-        // 右下角丸
+        // bottom right rounded
         x = shapeRect.right - tailSize.width - cornerRadius * 2
         y = shapeRect.bottom - (cornerRadius * 2)
         arcRect = Rect(Offset(x, y), arcSize)
         arcTo(arcRect, 0f, 90f, false)
 
-        // 左下角丸
+        // rounded lower left corner
         x = shapeRect.left
         y = shapeRect.bottom - (cornerRadius * 2)
         arcRect = Rect(Offset(x, y), arcSize)
         arcTo(arcRect, 90f, 90f, false)
     }
 
-    Text(
-        text,
-        modifier = modifier
-            .background(balloonColor, shape = balloonShape)
-            .padding(start = 4.dp, end = tailWidthDp + 4.dp)
-            .padding(vertical = 2.dp)
-    )
+    var mod = modifier
+    if (borderWidth != null && borderColor != null) {
+        mod = mod
+            .border(BorderStroke(borderWidth, borderColor), shape = balloonShape)
+            .background(backgroundColor, shape = balloonShape)
+    } else {
+        mod = mod.background(backgroundColor, shape = balloonShape)
+    }
+    mod = mod
+        .padding(start = 6.dp, end = tailWidthDp + 6.dp)
+        .padding(top = 2.dp, bottom = 4.dp)
+
+    Text(text, color = color, modifier = mod)
 }
 
 @Composable
-fun YourBalloonText(
+fun IncomingBalloonText(
     text: String,
     modifier: Modifier = Modifier,
-    balloonColor: Color = Color.White
+    color: Color = Color.Black,
+    backgroundColor: Color = Color.White,
+    borderWidth: Dp? = null,
+    borderColor: Color? = null
 ) {
-    val cornerRadius = with(LocalDensity.current) { 8.dp.toPx() }
-    val tailSize = Size(cornerRadius * 1.0f, cornerRadius * 0.5f)
+    val cornerRadius = with(LocalDensity.current) { 10.dp.toPx() }
+    val tailSize = Size(cornerRadius * 0.8f, cornerRadius * 0.2f)
     val tailWidthDp = with(LocalDensity.current) { tailSize.width.toDp() }
 
     val balloonShape = GenericShape { size, _ ->
@@ -127,15 +145,17 @@ fun YourBalloonText(
         var controlX: Float
         var controlY: Float
 
-        // 反時計回りに描画していく
+        //
+        // draw counterclockwise
+        //
 
-        // 左上角丸
+        // rounded upper left corner
         x = shapeRect.left + tailSize.width
         y = shapeRect.top
         arcRect = Rect(Offset(x, y), arcSize)
         arcTo(arcRect, 270f, -45f, false)
 
-        // しっぽ上部
+        // upper tail
         x = shapeRect.left
         y = shapeRect.top
         controlX = shapeRect.left + tailSize.width / 2
@@ -143,7 +163,7 @@ fun YourBalloonText(
         //lineTo(x, y)
         quadraticBezierTo(controlX, controlY, x, y)
 
-        // しっぽ下部
+        // lower tail
         x = shapeRect.left + tailSize.width
         y = shapeRect.top + (cornerRadius / 2) + tailSize.height
         controlX = shapeRect.left + tailSize.width / 2
@@ -151,32 +171,38 @@ fun YourBalloonText(
         //lineTo(x, y)
         quadraticBezierTo(controlX, controlY, x, y)
 
-        // 左下角丸
+        // rounded lower left corner
         x = shapeRect.left + tailSize.width
         y = shapeRect.bottom - (cornerRadius * 2)
         arcRect = Rect(Offset(x, y), arcSize)
         arcTo(arcRect, 180f, -90f, false)
 
-        // 右下角丸
+        // bottom right rounded
         x = shapeRect.right - cornerRadius
         y = shapeRect.bottom - cornerRadius * 2
         arcRect = Rect(Offset(x - cornerRadius, y), arcSize)
         arcTo(arcRect, 90f, -90f, false)
 
-        // 右上角丸
+        // rounded upper right corner
         x = shapeRect.right - cornerRadius * 2
         y = shapeRect.top
         arcRect = Rect(Offset(x, y), arcSize)
         arcTo(arcRect, 0f, -90f, false)
     }
 
-    Text(
-        text,
-        modifier = modifier
-            .background(balloonColor, shape = balloonShape)
-            .padding(start = tailWidthDp + 4.dp, end = 4.dp)
-            .padding(vertical = 2.dp)
-    )
+    var mod = modifier
+    if (borderWidth != null && borderColor != null) {
+        mod = mod
+            .border(BorderStroke(borderWidth, borderColor), shape = balloonShape)
+            .background(backgroundColor, shape = balloonShape)
+    } else {
+        mod = mod.background(backgroundColor, shape = balloonShape)
+    }
+    mod = mod
+        .padding(start = tailWidthDp + 6.dp, end = 6.dp)
+        .padding(top = 2.dp, bottom = 4.dp)
+
+    Text(text, color = color, modifier = mod)
 }
 
 
@@ -188,20 +214,18 @@ fun BalloonTextPreview() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                "Android表示サンプル",
+            BalloonText(
+                text = "my message",
+                color = Color.White,
+                backgroundColor = Color(0xffff8c82),
                 modifier = Modifier.padding(4.dp)
             )
             BalloonText(
-                "Composeから\nこんにちは!",
-                modifier = Modifier.padding(4.dp)
-            )
-            BalloonText(
-                "逆向きの吹き出しです", mirrored = true,
-                modifier = Modifier.padding(4.dp)
-            )
-            BalloonText(
-                "長いテキストの表示例です。テキストの幅と高さに合わせて、吹き出しの大きさも自動的に連動して表示されます。",
+                text = "your messages",
+                backgroundColor = Color.White,
+                borderWidth = 1.dp,
+                borderColor = Color.LightGray,
+                isIncoming = true,
                 modifier = Modifier.padding(4.dp)
             )
         }
