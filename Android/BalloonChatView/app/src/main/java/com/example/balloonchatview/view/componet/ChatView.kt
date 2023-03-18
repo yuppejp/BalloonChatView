@@ -12,14 +12,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.balloonchatview.OutgoingBalloonText
-import com.example.balloonchatview.IncomingBalloonText
+import com.example.balloonchatview.BalloonText
 import com.example.balloonchatview.model.ChatViewModel
 import com.example.balloonchatview.ui.theme.BalloonChatViewTheme
 import com.example.balloonchatview.view.model.ChatMessage
@@ -41,7 +39,6 @@ import java.util.*
 //    }
 //}
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChatView(me: User, you: User, viewModel: ChatViewModel, modifier: Modifier = Modifier) {
     val state = rememberLazyListState()
@@ -112,7 +109,7 @@ fun MessageItemView(me: User, you: User, message: ChatMessage, modifier: Modifie
                             modifier = Modifier.align(Alignment.End)
                         )
                     }
-                    OutgoingBalloonText(message.text)
+                    BalloonText(message.text)
                 }
             }
 //            Image(
@@ -144,7 +141,7 @@ fun MessageItemView(me: User, you: User, message: ChatMessage, modifier: Modifie
                     //fontSize = 8.sp
                 )
                 Row {
-                    IncomingBalloonText(message.text)
+                    BalloonText(message.text, isIncoming = true)
                     Text(
                         message.date.toString(),
                         style = MaterialTheme.typography.caption,

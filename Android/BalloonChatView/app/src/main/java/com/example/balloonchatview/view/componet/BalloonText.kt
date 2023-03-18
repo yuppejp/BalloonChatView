@@ -21,37 +21,49 @@ import com.example.balloonchatview.ui.theme.BalloonChatViewTheme
 
 @Composable
 fun BalloonText(
-    modifier: Modifier = Modifier,
     text: String,
+    modifier: Modifier = Modifier,
+    isIncoming: Boolean = false,
     color: Color = Color.Black,
     backgroundColor: Color = Color(red = 109, green = 230, blue = 123),
-    borderWidth: Dp? = null,
-    borderColor: Color? = null,
-    isIncoming: Boolean = false
-) {
-    if (isIncoming) {
-        IncomingBalloonText(text, modifier, color, backgroundColor, borderWidth, borderColor)
-    } else {
-        OutgoingBalloonText(text, modifier, color, backgroundColor, borderWidth, borderColor)
-    }
-}
-
-@Composable
-fun OutgoingBalloonText(
-    text: String,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Black,
-    backgroundColor: Color = Color.Green,
     borderWidth: Dp? = null,
     borderColor: Color? = null
 ) {
     val cornerRadius = with(LocalDensity.current) { 10.dp.toPx() }
     val tailSize = Size(cornerRadius * 0.8f, cornerRadius * 0.2f)
     val tailWidthDp = with(LocalDensity.current) { tailSize.width.toDp() }
+    val balloonShape = BalloonShape(cornerRadius, tailSize, isIncoming)
 
-    val balloonShape = GenericShape { size, _ ->
+    val startPadding: Dp
+    val endPadding: Dp
+    if (isIncoming) {
+        startPadding = tailWidthDp + 6.dp
+        endPadding = 6.dp
+    } else {
+        startPadding = 6.dp
+        endPadding = tailWidthDp + 6.dp
+    }
+
+    var mod = modifier
+    if (borderWidth != null && borderColor != null) {
+        mod = mod
+            .border(BorderStroke(borderWidth, borderColor), shape = balloonShape)
+            .background(backgroundColor, shape = balloonShape)
+    } else {
+        mod = mod.background(backgroundColor, shape = balloonShape)
+    }
+    mod = mod
+        .padding(start = startPadding, end = endPadding)
+        .padding(top = 2.dp, bottom = 4.dp)
+
+    Text(text, color = color, modifier = mod)
+}
+
+fun BalloonShape(cornerRadius: Float, tailSize: Size, isIncoming: Boolean = false): GenericShape {
+    val arcSize = Size(cornerRadius * 2, cornerRadius * 2)
+
+    val outgoingBalloonShape = GenericShape { size, _ ->
         val shapeRect = Rect(Offset(0f, 0f), Size(size.width, size.height))
-        val arcSize = Size(cornerRadius * 2, cornerRadius * 2)
         var arcRect: Rect
         var x: Float
         var y: Float
@@ -108,37 +120,8 @@ fun OutgoingBalloonText(
         arcTo(arcRect, 90f, 90f, false)
     }
 
-    var mod = modifier
-    if (borderWidth != null && borderColor != null) {
-        mod = mod
-            .border(BorderStroke(borderWidth, borderColor), shape = balloonShape)
-            .background(backgroundColor, shape = balloonShape)
-    } else {
-        mod = mod.background(backgroundColor, shape = balloonShape)
-    }
-    mod = mod
-        .padding(start = 6.dp, end = tailWidthDp + 6.dp)
-        .padding(top = 2.dp, bottom = 4.dp)
-
-    Text(text, color = color, modifier = mod)
-}
-
-@Composable
-fun IncomingBalloonText(
-    text: String,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Black,
-    backgroundColor: Color = Color.White,
-    borderWidth: Dp? = null,
-    borderColor: Color? = null
-) {
-    val cornerRadius = with(LocalDensity.current) { 10.dp.toPx() }
-    val tailSize = Size(cornerRadius * 0.8f, cornerRadius * 0.2f)
-    val tailWidthDp = with(LocalDensity.current) { tailSize.width.toDp() }
-
-    val balloonShape = GenericShape { size, _ ->
+    val incomingBalloonShape = GenericShape { size, _ ->
         val shapeRect = Rect(Offset(0f, 0f), Size(size.width, size.height))
-        val arcSize = Size(cornerRadius * 2, cornerRadius * 2)
         var arcRect: Rect
         var x: Float
         var y: Float
@@ -190,21 +173,12 @@ fun IncomingBalloonText(
         arcTo(arcRect, 0f, -90f, false)
     }
 
-    var mod = modifier
-    if (borderWidth != null && borderColor != null) {
-        mod = mod
-            .border(BorderStroke(borderWidth, borderColor), shape = balloonShape)
-            .background(backgroundColor, shape = balloonShape)
+    if (isIncoming) {
+        return incomingBalloonShape
     } else {
-        mod = mod.background(backgroundColor, shape = balloonShape)
+        return outgoingBalloonShape
     }
-    mod = mod
-        .padding(start = tailWidthDp + 6.dp, end = 6.dp)
-        .padding(top = 2.dp, bottom = 4.dp)
-
-    Text(text, color = color, modifier = mod)
 }
-
 
 @Preview(showBackground = true)
 @Composable
@@ -215,13 +189,13 @@ fun BalloonTextPreview() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             BalloonText(
-                text = "my message",
+                text = "outgoing message",
                 color = Color.White,
                 backgroundColor = Color(0xffff8c82),
                 modifier = Modifier.padding(4.dp)
             )
             BalloonText(
-                text = "your messages",
+                text = "incoming messages",
                 backgroundColor = Color.White,
                 borderWidth = 1.dp,
                 borderColor = Color.LightGray,
