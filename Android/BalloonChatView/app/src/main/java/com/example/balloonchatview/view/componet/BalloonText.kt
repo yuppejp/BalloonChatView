@@ -1,5 +1,6 @@
-package com.example.balloonchatview
+package com.example.balloonchatview.view.componet
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -180,7 +181,7 @@ fun BalloonShape(cornerRadius: Float, tailSize: Size, isIncoming: Boolean = fals
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showSystemUi = true, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun BalloonTextPreview() {
     BalloonChatViewTheme {
@@ -190,8 +191,8 @@ fun BalloonTextPreview() {
         ) {
             BalloonText(
                 text = "outgoing message",
-                color = Color.White,
-                backgroundColor = Color(0xffff8c82),
+                color = Color.Black,
+                backgroundColor = Color.Green,
                 modifier = Modifier.padding(4.dp)
             )
             BalloonText(
